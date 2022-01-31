@@ -1,0 +1,18 @@
+---
+applications:
+  - name: a9s-metrics-example
+    buildpacks:
+      - https://gitlabci.exxeta.com/paas_buildpacks/telegraf-buildpack.git
+      - https://github.com/cloudfoundry/go-buildpack
+    command: ./bin/a9s-metrics-example
+    memory: 256M
+    disk_quota: 256M
+    random-route: true
+    services:
+      - prometheus
+    env:
+      PROM_ENABLED: true
+      PROM_HOST: localhost
+      PROM_PATH: /metrics
+      PROM_PORT: 8080
+      DEBUG: true
