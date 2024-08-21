@@ -2,7 +2,7 @@
 applications:
   - name: a9s-metrics-example
     buildpacks:
-      - https://gitlabci.exxeta.com/paas_buildpacks/telegraf-buildpack.git
+      - https://github.com/tse-eche/telegraf-buildpack.git
       - https://github.com/cloudfoundry/go-buildpack
     command: ./bin/a9s-metrics-example
     memory: 256M

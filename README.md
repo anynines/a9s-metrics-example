@@ -54,7 +54,7 @@ in addition to a static page via a separate metrics endpoint using this
 
 ### The Sidecar
 
-For the sidecar, this example uses the [telegraf-buildpack](https://gitlabci.exxeta.com/paas_buildpacks/telegraf-buildpack).
+For the sidecar, this example uses the [telegraf-buildpack](https://github.com/tse-eche/telegraf-buildpack).
 It includes [telegraf](https://www.influxdata.com/time-series-platform/telegraf/)
 which is a plugin-driven server agent for collecting and sending metrics.
 It is coupled to your application, scraps the metrics endpoint, and forwards
@@ -141,7 +141,7 @@ There are three important parts.
 1. In the `buildpacks` section, the `telegraf-buildpack` is already at the
    beginning of the list. Do not change the order, as this may cause a
    deployment error.
-   `https://gitlabci.exxeta.com/paas_buildpacks/telegraf-buildpack.git`
+   `https://github.com/tse-eche/telegraf-buildpack.git`
 
 2. The buildpack is designed to automatically use a bound a9s Prometheus instance. Therefore, you must define the service to bind in the `services` section. Cloud Foundry and the a9s Service Broker will then automatically take care of the necessary parameters to connect to the Prometheus instance.
 
