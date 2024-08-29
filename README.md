@@ -1,16 +1,16 @@
-# a9s-metrics-sample
+# a9s-metrics-example
 
 This repository contains a sample application to demonstrate serving application
 metrics via a sidecar buildpack in Cloud Foundry.
 
 - [Introduction](#introduction)
-  - [The App](#the-app)
-  - [The Sidecar](#the-sidecar)
-  - [Prerequesites](#prerequesites)
-  - [Deploy a9s Prometheus](#deploy-a9s-prometheus)
-  - [Checkout the Sample Application](#checkout-the-sample-application)
-  - [The Application Manifest File](#the-application-manifest-file)
-  - [Push the App](#push-the-app)
+- [The App](#the-app)
+- [The Sidecar](#the-sidecar)
+- [Prerequisites](#prerequisites)
+- [Deploy a9s Prometheus](#deploy-a9s-prometheus)
+- [Checkout the Sample Application](#checkout-the-sample-application)
+- [The Application Manifest File](#the-application-manifest-file)
+- [Push the App](#push-the-app)
 - [Example Dashboard](#example-dashboard)
 
 ## Introduction
@@ -23,7 +23,7 @@ easily retrieved from a running Prometheus instances to be scraped. Either the
 endpoint is not reachable from the network where the Prometheus instance is
 running or there are multiple instances of your application running and each
 time Prometheus retrieves the application, you are redirected to a different
-instance via the Gorouter as he acts like a load balancer.
+instance via the Gorouter as it acts like a load balancer.
 
 ![](images/communication-restrictions.png)
 
@@ -46,48 +46,56 @@ reduced to customizing the manifest. Only a few lines are added.
 
 Let's take a look at what we have.
 
-### The App
+## The App
 
-The application is written in [go](https://go.dev/) and provides basic metrics
+The application is written in [Go](https://go.dev/) and provides basic metrics
 in addition to a static page via a separate metrics endpoint using this
 [approach](https://prometheus.io/docs/guides/go-application/).
 
-### The Sidecar
+## The Sidecar
 
 For the sidecar, this example uses the [telegraf-buildpack](https://github.com/tse-eche/telegraf-buildpack).
 It includes [telegraf](https://www.influxdata.com/time-series-platform/telegraf/)
 which is a plugin-driven server agent for collecting and sending metrics.
-It is coupled to your application, scraps the metrics endpoint, and forwards
+It is coupled to your application, scrapes the metrics endpoint, and forwards
 them to a configured Graphite Exporter endpoint. Also, system metrics from your
 application container are sent to the endpoint.
 
-### Prerequesites
+## Prerequisites
 
 To deploy the application we need a platform and a Prometheus instance.
 The Cloud Foundry installation we want to use is [a9s Public PaaS](https://paas.anynines.com/).
 It offers us the necessary flexibility and we can deploy a Prometheus instance
 here.
 
-The Prometheus service it the a9s Prometheus which contains Prometheus,
-the Prometheus Alertmanager, a Graphite Endpoint and also a Grafana dashboard
-connected to Prometheus.
+a9s Prometheus contains Prometheus, the Prometheus Alertmanager, a Graphite Endpoint,
+and also a Grafana dashboard connected to Prometheus.
 
 ![](images/a9s-prometheus.png)
 
 a9s Prometheus is not enabled in all accounts by
 default, please ask our [support](support@anynines.com) to get a preview.
 
-### Deploy a9s Prometheus
+## Deploy a9s Prometheus
 
 a9s Prometheus does not provide the ability to display application metrics by
 default. This is because the Graphite Exporter has a mapping configuration that
 transfers Graphite-compliant metrics into Prometheus metrics that are enriched
 with tags. By default, the Graphite Exporter is set to strictly adhere to these
-mappings and reject others. However, you can change this configuration by
-setting the 'mapping_strict_match' property to false.
+mappings and reject others. Therefore, one needs to adapt this configuration by
+setting the `mapping_strict_match` property to `false` when creating a new
+service instance or updating an existing one.
+
+Creating a new service instance:
 
 ```bash
-$ cf create-service a9s-prometheus prometheus-single-medium prometheus -c '{ "mapping_strict_match": false }'
+$ cf create-service a9s-prometheus promgraf2-single-small prometheus -c '{ "mapping_strict_match": false }'
+```
+
+Updating an existing one:
+
+```bash
+$ cf update-service prometheus -c '{ "mapping_strict_match": false }'
 ```
 
 Before we can push the application, we have to wait until the service is deployed. We can use this command to query the status.
@@ -99,7 +107,7 @@ Showing info of service prometheus in org demonstrations / space demonstrations 
 name:             prometheus
 service:          a9s-prometheus
 tags:
-plan:             prometheus-single-medium
+plan:             promgraf2-single-small
 description:      This is a service creating and managing dedicated Prometheus to monitor applications and service instances, powered by the anynines Service Framework
 documentation:    https://www.anynines.com
 dashboard:        https://a9s-dashboard.de.a9s.eu/service-instances/8f866593-b6bc-4dac-9caf-902677d83b04
@@ -124,16 +132,16 @@ The status should be `create succeeded` like in the example above.
 While waiting we can check out the application with `git clone` and have a look at the application manifest.
 
 ```bash
-$ git clone https://github.com/anynines/a9s-metrics-sample.git
+$ git clone https://github.com/anynines/a9s-metrics-example.git
 ```
 
 Change into the directory.
 
 ```bash
-$ cd a9s-metrics-sample
+$ cd a9s-metrics-example
 ```
 
-### The Application Manifest File
+## The Application Manifest File
 
 The repository already contains the [manifest file](./manifest.yml).
 There are three important parts.
@@ -154,7 +162,8 @@ There are three important parts.
      GRAPHITE_HOST: phd31bf28-prometheus-0.node.dc1.consul.dsf2
      GRAPHITE_PORT: 9109
    ```
-### Push the App
+
+## Push the App
 
 When the service instance is ready, simply push the application with the
 `cf push` command.
@@ -167,12 +176,9 @@ $ cf push
 
 When the application is pushed, we can open the Grafana dashboard in our
 service instance and use the [example dashboard](./example/dashboard.json)
-provided in the repository to see the metrics. Just copy the json data into a
+provided in the repository to see the metrics. Just copy the JSON data into a
 new dashboard.
 
 ![](./example/dashboard_results.jpg)
 
 That's it.
-
-
-
